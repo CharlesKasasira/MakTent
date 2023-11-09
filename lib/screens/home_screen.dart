@@ -16,21 +16,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final supabase = Supabase.instance.client;
   late List<dynamic> course_units = [];
 
-  // List course_units = [
-  //   {"name": "Entrepreneurship", "code": "COE 2105", "views": 234},
-  //   {"name": "Cryptology and Coding Theory", "code": "CSC 3114", "views": 24},
-  //   {"name": "Advanced Programming", "code": "CSC 3115", "views": 234},
-  //   {"name": "User Interface Design", "code": "CSC 3221", "views": 234},
-  // ];
-
   Future getCourseUnit() async {
     try {
-      print("object");
       final data = await supabase
         .from('course_units')
         .select('*').order("created_at");
-
-      print("something: $data");
 
       setState(() {
         course_units = data.toList();
@@ -38,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       return data;
     } catch (error) {
-      print("start-$error-end");
       kDefaultDialog2("Error", "Something went wrong, Please try to reload");
     }
   }
@@ -53,8 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    getCourseUnit();
-    print("hele");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mak Tent", style: TextStyle(color: Colors.white),),

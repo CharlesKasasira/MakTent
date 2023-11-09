@@ -15,6 +15,8 @@ class CourseUnitScreen extends StatefulWidget {
 class _CourseUnitScreenState extends State<CourseUnitScreen> {
   final supabase = Supabase.instance.client;
   late List<dynamic> pastPapers = [];
+  late List<dynamic> tests = [];
+  late List<dynamic> courseWorks = [];
 
   Future getPastPapers() async {
     try {
@@ -22,10 +24,40 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
         .from('past_papers')
         .select('*').eq("course_unit_id", widget.courseUnit["id"]);
 
-      print("something: $data");
-
       setState(() {
         pastPapers = data.toList();
+      });
+
+      return data;
+    } catch (error) {
+      kDefaultDialog2("Error", "Something went wrong, Please try to reload");
+    }
+  }
+
+  Future getTests() async {
+    try {
+      final data = await supabase
+        .from('tests')
+        .select('*').eq("course_unit_id", widget.courseUnit["id"]);
+
+      setState(() {
+        tests = data.toList();
+      });
+
+      return data;
+    } catch (error) {
+      kDefaultDialog2("Error", "Something went wrong, Please try to reload");
+    }
+  }
+
+  Future getCourseWorks() async {
+    try {
+      final data = await supabase
+        .from('course_works')
+        .select('*').eq("course_unit_id", widget.courseUnit["id"]);
+
+      setState(() {
+        courseWorks = data.toList();
       });
 
       return data;
@@ -47,14 +79,10 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
     }
   }
 
-
-  List pastTests = [
-    {"name": "Test 2", "year": 2018}
-  ];
-
   @override
   void initState() {
     getPastPapers();
+    getTests();
     updateViewCount();
 
     super.initState();
@@ -70,7 +98,7 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
           title: Text("${widget.courseUnit["name"]}", style: const TextStyle(color: Colors.white),),
           backgroundColor: Colors.green,
           bottom: const PreferredSize(
-            preferredSize: const Size.fromHeight(52.0),
+            preferredSize: Size.fromHeight(52.0),
             child: TabBar(
               indicatorColor: Colors.white,
               labelColor: Colors.white,
@@ -106,27 +134,41 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
 
           //Tab 2 content
           ListView.builder(
-            itemCount: pastTests.length,
+            itemCount: tests.length,
             itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-              title: Text(pastTests[index]["name"],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-              subtitle: Text("${pastTests[index]["year"]}"),
+            return InkWell(
+              onTap: () {
+                Get.to(() => PreviewScreen(tests[index]), transition: Transition.fadeIn);
+              },
+              child: Ink(
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                  title: Text(tests[index]["name"],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                  subtitle: Text("${tests[index]["year"]}"),
+                ),
+              ),
             );
           }),
 
           //Tab 3 content
           ListView.builder(
-            itemCount: pastTests.length,
+            itemCount: courseWorks.length,
             itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-              title: Text(pastTests[index]["name"],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-              subtitle: Text("${pastTests[index]["year"]}"),
+            return InkWell(
+              onTap: () {
+                Get.to(() => PreviewScreen(courseWorks[index]), transition: Transition.fadeIn);
+              },
+              child: Ink(
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                  title: Text(courseWorks[index]["name"],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                  subtitle: Text("${courseWorks[index]["year"]}"),
+                ),
+              ),
             );
           }),
           ] 
