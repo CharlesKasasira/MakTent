@@ -17,7 +17,10 @@ class _AboutScreenState extends State<AboutScreen> {
         backgroundColor: Colors.green,
       ),
       body: const Center(
-        child: Text("here"),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30.0),
+          child: Text("MakTent is an application by students to help in the access of past papers and other academic resources on campus", style: TextStyle(fontSize: 18),),
+        ),
       ),
     );
   }
