@@ -36,6 +36,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     getCourseUnit();
+    supabase.channel('public:course_units').on(
+      RealtimeListenTypes.postgresChanges,
+      ChannelFilter(event: '*', schema: 'public', table: 'course_units'),
+      (payload, [ref]) {
+        getCourseUnit();
+      },
+    ).subscribe();
 
     super.initState();
   }
@@ -49,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           InkWell(
             onTap: () {
-              Get.to(() => AboutScreen(), transition: Transition.fadeIn);
+              Get.to(() => const AboutScreen(), transition: Transition.fadeIn);
             },
             child: Ink(child: const Icon(Icons.info_outline, color: Colors.white,))),
           const SizedBox(width: 20,)
