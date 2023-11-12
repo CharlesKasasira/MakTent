@@ -1,3 +1,4 @@
+import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:maktent/screens/preview_screen.dart';
@@ -14,9 +15,22 @@ class CourseUnitScreen extends StatefulWidget {
 
 class _CourseUnitScreenState extends State<CourseUnitScreen> {
   final supabase = Supabase.instance.client;
+  late PDFDocument pdfDocument;
   late List<dynamic> pastPapers = [];
   late List<dynamic> tests = [];
   late List<dynamic> courseWorks = [];
+
+  Future<void> loadDocument(fileUrl) async {
+    try {
+      PDFDocument doc = await PDFDocument.fromURL(fileUrl);
+      setState(() {
+        pdfDocument = doc;
+      });
+    } catch(error){
+      print('Error loading PDF: $error');
+    }
+    
+  }
 
   Future getPastPapers() async {
     try {
@@ -113,64 +127,83 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
         body: TabBarView(
           children: [
             // Tab 1 content
-            ListView.builder(
-            itemCount: pastPapers.length,
-            itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                Get.to(() => PreviewScreen(pastPapers[index]), transition: Transition.fadeIn);
-              },
-              child: Ink(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                  title: Text(pastPapers[index]["name"],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                  subtitle: Text("${pastPapers[index]["year"]}"),
+            if(pastPapers.isEmpty)
+              Center(
+                child: Text("No Past exams yet", style: TextStyle(fontSize: 18, color: Colors.grey.shade600),)
+              )
+            else
+              ListView.builder(
+              itemCount: pastPapers.length,
+              itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () async {
+                  await loadDocument(pastPapers[index]["file_url"]);
+                  Get.to(() => PreviewScreen(pastPapers[index], pdfDocument), transition: Transition.fadeIn);
+                },
+                child: Ink(
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                    title: Text(pastPapers[index]["name"],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                    subtitle: Text("${pastPapers[index]["year"]}"),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
 
           //Tab 2 content
-          ListView.builder(
-            itemCount: tests.length,
-            itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                Get.to(() => PreviewScreen(tests[index]), transition: Transition.fadeIn);
-              },
-              child: Ink(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                  title: Text(tests[index]["name"],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                  subtitle: Text("${tests[index]["year"]}"),
+          if(tests.isEmpty)
+            Center(
+              child: Text("No tests yet", style: TextStyle(fontSize: 18, color: Colors.grey.shade600),)
+            )
+          else 
+            ListView.builder(
+              itemCount: tests.length,
+              itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () async {
+                  await loadDocument(tests[index]["file_url"]);
+                  Get.to(() => PreviewScreen(tests[index], pdfDocument), transition: Transition.fadeIn);
+                },
+                child: Ink(
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                    title: Text(tests[index]["name"],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                    subtitle: Text("${tests[index]["year"]}"),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+            
 
           //Tab 3 content
-          ListView.builder(
-            itemCount: courseWorks.length,
-            itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                Get.to(() => PreviewScreen(courseWorks[index]), transition: Transition.fadeIn);
-              },
-              child: Ink(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                  title: Text(courseWorks[index]["name"],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                  subtitle: Text("${courseWorks[index]["year"]}"),
+          if(courseWorks.isEmpty)
+              Center(
+                child: Text("No CourseWork yet", style: TextStyle(fontSize: 18, color: Colors.grey.shade600),)
+              )
+          else
+            ListView.builder(
+              itemCount: courseWorks.length,
+              itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () async {
+                  await loadDocument(courseWorks[index]["file_url"]);
+                  Get.to(() => PreviewScreen(courseWorks[index], pdfDocument), transition: Transition.fadeIn);
+                },
+                child: Ink(
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                    title: Text(courseWorks[index]["name"],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                    subtitle: Text("${courseWorks[index]["year"]}"),
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
           ] 
         ),
       ),

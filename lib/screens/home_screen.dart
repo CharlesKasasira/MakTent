@@ -14,7 +14,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final supabase = Supabase.instance.client;
-  late List<dynamic> course_units = [];
+  late List<dynamic> courseUnits = [];
+  List<dynamic> filteredUnits = [];
+  List<dynamic> results = [];
+  late String searchText = "";
+  final _focusSearch = FocusNode();
 
   Future getCourseUnit() async {
     try {
@@ -23,29 +27,58 @@ class _HomeScreenState extends State<HomeScreen> {
         .select('*').order("created_at");
 
       setState(() {
-        course_units = data.toList();
+        courseUnits = data.toList();
       });
 
       return data;
     } catch (error) {
       kDefaultDialog2("Error", "Something went wrong, Please try to reload");
     }
+
+    if(courseUnits.isNotEmpty){
+      _runFilter();
+    }
+
+    _runFilter();
+  }
+
+
+  void _runFilter() {
+    if (searchText.isEmpty) {
+      results = courseUnits;
+    } else {
+      results = courseUnits
+          .where((unit) => unit['name']
+              .toLowerCase()
+              .contains(searchText.toLowerCase()))
+          .toList();
+    }
+
+    setState(() {
+      filteredUnits = results;
+    });
+
+    print("filteredUnits: $filteredUnits");
   }
 
 
   @override
   void initState() {
-    getCourseUnit();
-    supabase.channel('public:course_units').on(
-      RealtimeListenTypes.postgresChanges,
-      ChannelFilter(event: '*', schema: 'public', table: 'course_units'),
-      (payload, [ref]) {
-        getCourseUnit();
-      },
-    ).subscribe();
-
-    super.initState();
+    _initializeData();
   }
+
+  Future<void> _initializeData() async {
+      await getCourseUnit();
+      _runFilter();
+      supabase.channel('public:course_units').on(
+        RealtimeListenTypes.postgresChanges,
+        ChannelFilter(event: '*', schema: 'public', table: 'course_units'),
+        (payload, [ref]) async {
+          await getCourseUnit();
+          _runFilter();
+        },
+      ).subscribe();
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -73,37 +106,53 @@ class _HomeScreenState extends State<HomeScreen> {
                 filled: true,
                 fillColor: Colors.white
               ),
+              focusNode: _focusSearch,
+              onChanged: (value) {
+                setState(() {
+                  searchText = value;
+                });
+                _runFilter();
+              },
             ),
           )
         ),
       ),
-      body: ListView.builder(
-        shrinkWrap: true,
-        itemCount: course_units.length,
-        itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                Get.to(() => CourseUnitScreen(course_units[index]), transition: Transition.fadeIn);
-              },
-              child: Ink(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                  leading: const Icon(Icons.edit_document),
-                  title: Text(
-                    course_units[index]["name"],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+      body: RefreshIndicator(
+        onRefresh: getCourseUnit,
+        color: Colors.green,
+        child: GestureDetector(
+          onTap: () {
+            _focusSearch.unfocus();
+          },
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: filteredUnits.length,
+            itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () {
+                    Get.to(() => CourseUnitScreen(filteredUnits[index]), transition: Transition.fadeIn);
+                  },
+                  child: Ink(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                      leading: const Icon(Icons.edit_document),
+                      title: Text(
+                        filteredUnits[index]["name"],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(filteredUnits[index]["code"]),
+                      trailing: Column(
+                        children: [
+                          const Icon(Icons.remove_red_eye, size: 20,),
+                          Text("${filteredUnits[index]["views"]}", style: const TextStyle(fontSize: 12),)
+                        ],
+                      ),
+                    ),
                   ),
-                  subtitle: Text(course_units[index]["code"]),
-                  trailing: Column(
-                    children: [
-                      const Icon(Icons.remove_red_eye, size: 20,),
-                      Text("${course_units[index]["views"]}", style: const TextStyle(fontSize: 12),)
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
+                );
+              }),
+        ),
+      ),
     );
   }
 }
