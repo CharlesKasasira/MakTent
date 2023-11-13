@@ -1,6 +1,7 @@
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class PreviewScreen extends StatefulWidget {
   Map pastPaper;
   PDFDocument pdfDocument;
@@ -31,9 +32,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
         ],
       ),
       body: Center(
+        // ignore: unnecessary_null_comparison
         child: widget.pdfDocument == null
-          ? const Center(child: CircularProgressIndicator())
-          : PDFViewer(document: widget.pdfDocument),
+          ? const Center(child: CircularProgressIndicator(color: Colors.green,))
+          : PDFViewer(document: widget.pdfDocument, 
+            progressIndicator: const CircularProgressIndicator(color: Colors.green,),),
       ),
     );
   }

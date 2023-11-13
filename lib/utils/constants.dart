@@ -63,11 +63,10 @@ const inputDecorationConst = InputDecoration(
       TextStyle(fontFamily: "NunitoSans", color: Colors.grey, fontSize: 16),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(10)),
-    // borderSide: BorderSide(color: Colors.white),
   ),
   enabledBorder: OutlineInputBorder(
-    // borderSide: BorderSide(color: Colors.white), // Set the border color to white
     borderRadius: BorderRadius.all(Radius.circular(10)),
+    borderSide: BorderSide(color: Colors.white),
   ),
   errorBorder: OutlineInputBorder(
     borderSide: BorderSide(color: Colors.red),
@@ -78,10 +77,6 @@ const inputDecorationConst = InputDecoration(
     borderSide: BorderSide(color: Colors.grey),
   ),
    hintStyle: TextStyle(color: Colors.grey),
-  //  style: TextStyle(color: Colors.white),
-  // prefixStyle: TextStyle(color: Colors.white),
-  // suffixStyle: TextStyle(color: Colors.white),
-  // counterStyle: TextStyle(color: Colors.white),
   helperStyle: TextStyle(color: Colors.grey),
 );
 

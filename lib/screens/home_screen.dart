@@ -97,11 +97,15 @@ class _HomeScreenState extends State<HomeScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(52.0),
           child: Container(
-            height: 50,
+            height: 55,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: TextFormField(
               decoration: inputDecorationConst.copyWith(
-                prefixIcon: const Icon(Icons.search),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green.shade800, width: 2),
+                ),
+                prefixIcon: Icon(Icons.search, color: Colors.green.shade800, size: 22,),
                 labelText: "Search Course Unit",
                 filled: true,
                 fillColor: Colors.white
@@ -138,10 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       leading: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
+                          color: Colors.green.shade50,
                           borderRadius: BorderRadius.circular(75)
                         ),
-                        child: Icon(Icons.edit_document, color: Colors.grey.shade600,)),
+                        child: Icon(Icons.description_outlined, color: Colors.green.shade300,)),
                       title: Text(
                         filteredUnits[index]["name"],
                         style: const TextStyle(fontWeight: FontWeight.bold),
