@@ -19,6 +19,7 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
   late List<dynamic> pastPapers = [];
   late List<dynamic> tests = [];
   late List<dynamic> courseWorks = [];
+  bool _isLoading = false;
 
   Future<void> loadDocument(fileUrl) async {
     try {
@@ -33,6 +34,9 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
   }
 
   Future getPastPapers() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final data = await supabase
         .from('past_papers')
@@ -42,10 +46,18 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
         pastPapers = data.toList();
       });
 
+      setState(() {
+      _isLoading = false;
+    });
+
       return data;
     } catch (error) {
       kDefaultDialog2("Error", "Something went wrong, Please try to reload");
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future getTests() async {
@@ -127,7 +139,18 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
         body: TabBarView(
           children: [
             // Tab 1 content
-            if(pastPapers.isEmpty)
+            if(_isLoading)
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(color: Colors.green,),
+                    const SizedBox(height: 8,),
+                    Text("Loading...", style: TextStyle(fontSize: 18, color: Colors.grey.shade600),),
+                  ],
+                )
+              )
+            else if(pastPapers.isEmpty)
               Center(
                 child: Text("No Past exams yet", style: TextStyle(fontSize: 18, color: Colors.grey.shade600),)
               )

@@ -57,14 +57,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       filteredUnits = results;
     });
-
-    print("filteredUnits: $filteredUnits");
   }
 
 
   @override
   void initState() {
     _initializeData();
+
+    super.initState();
   }
 
   Future<void> _initializeData() async {
@@ -135,7 +135,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Ink(
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                      leading: const Icon(Icons.edit_document),
+                      leading: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(75)
+                        ),
+                        child: Icon(Icons.edit_document, color: Colors.grey.shade600,)),
                       title: Text(
                         filteredUnits[index]["name"],
                         style: const TextStyle(fontWeight: FontWeight.bold),
