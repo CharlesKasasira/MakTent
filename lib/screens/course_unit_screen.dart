@@ -109,6 +109,7 @@ class _CourseUnitScreenState extends State<CourseUnitScreen> {
   void initState() {
     getPastPapers();
     getTests();
+    getCourseWorks();
     updateViewCount();
 
     super.initState();

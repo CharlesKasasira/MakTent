@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:maktent/screens/about_screen.dart';
-import 'package:maktent/screens/course_unit_screen.dart';
+import 'package:maktent/screens/home_screen.dart';
 import 'package:maktent/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class CoursesScreen extends StatefulWidget {
+  const CoursesScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<CoursesScreen> createState() => _CoursesScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _CoursesScreenState extends State<CoursesScreen> {
   final supabase = Supabase.instance.client;
-  late List<dynamic> courseUnits = [];
-  List<dynamic> filteredUnits = [];
+  late List<dynamic> courses = [];
+  List<dynamic> filteredCourses = [];
   List<dynamic> results = [];
   late String searchText = "";
   final _focusSearch = FocusNode();
 
-  Future getCourseUnit() async {
+  Future getCourses() async {
     try {
       final data = await supabase
-        .from('course_units')
+        .from('courses')
         .select('*').order("created_at");
 
       setState(() {
-        courseUnits = data.toList();
+        courses = data.toList();
       });
 
       return data;
@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       kDefaultDialog2("Error", "Something went wrong, Please try to reload");
     }
 
-    if(courseUnits.isNotEmpty){
+    if(courses.isNotEmpty){
       _runFilter();
     }
 
@@ -45,17 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _runFilter() {
     if (searchText.isEmpty) {
-      results = courseUnits;
+      results = courses;
     } else {
-      results = courseUnits
-          .where((unit) => unit['name']
+      results = courses
+          .where((course) => course['name']
               .toLowerCase()
               .contains(searchText.toLowerCase()))
           .toList();
     }
 
     setState(() {
-      filteredUnits = results;
+      filteredCourses = results;
     });
   }
 
@@ -68,13 +68,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeData() async {
-      await getCourseUnit();
+      await getCourses();
       _runFilter();
-      supabase.channel('public:course_units').on(
+      supabase.channel('public:courses').on(
         RealtimeListenTypes.postgresChanges,
-        ChannelFilter(event: '*', schema: 'public', table: 'course_units'),
+        ChannelFilter(event: '*', schema: 'public', table: 'courses'),
         (payload, [ref]) async {
-          await getCourseUnit();
+          await getCourses();
           _runFilter();
         },
       ).subscribe();
@@ -85,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mak Tent", style: TextStyle(color: Colors.white),),
-        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.green,
         actions: [
           InkWell(
@@ -107,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderSide: BorderSide(color: Colors.green.shade800, width: 2),
                 ),
                 prefixIcon: Icon(Icons.search, color: Colors.green.shade800, size: 22,),
-                labelText: "Search Course Unit",
+                labelText: "Search Course",
                 filled: true,
                 fillColor: Colors.white
               ),
@@ -123,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: getCourseUnit,
+        onRefresh: getCourses,
         color: Colors.green,
         child: GestureDetector(
           onTap: () {
@@ -131,33 +130,46 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: filteredUnits.length,
+            itemCount: filteredCourses.length,
             itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () {
-                    Get.to(() => CourseUnitScreen(filteredUnits[index]), transition: Transition.fadeIn);
+                    // Get.to(() => CourseUnitScreen(filteredUnits[index]), transition: Transition.fadeIn);
                   },
                   child: Ink(
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                      leading: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(75)
-                        ),
-                        child: Icon(Icons.description_outlined, color: Colors.green.shade300,)),
+                    child: ExpansionTile(
+                      // contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+                      // leading: Container(
+                      //   padding: const EdgeInsets.all(12),
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.green.shade50,
+                      //     borderRadius: BorderRadius.circular(75)
+                      //   ),
+                      //   child: Icon(Icons.school, color: Colors.green.shade300,)),
                       title: Text(
-                        filteredUnits[index]["name"],
+                        filteredCourses[index]["name"],
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(filteredUnits[index]["code"]),
-                      trailing: Column(
-                        children: [
-                          const Icon(Icons.remove_red_eye, size: 20,),
-                          Text("${filteredUnits[index]["views"]}", style: const TextStyle(fontSize: 12),)
-                        ],
-                      ),
+                      children: [
+                        ListTile(
+                          title: Text('Year 1'),
+                          onTap: () {
+                            Get.to(() => HomeScreen(), transition: Transition.fadeIn);
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Year 2'),
+                          onTap: () {
+                            Get.to(() => HomeScreen(), transition: Transition.fadeIn);
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Year 3'),
+                          onTap: () {
+                            Get.to(() => HomeScreen(), transition: Transition.fadeIn);
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );

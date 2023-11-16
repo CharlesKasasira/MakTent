@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:maktent/screens/courses_screen.dart';
 import 'package:maktent/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.wait([]).then((responseList) async {
-      Get.off(() => HomeScreen(), transition: Transition.fadeIn);
+      Get.off(() => CoursesScreen(), transition: Transition.fadeIn);
     });
   }
 
